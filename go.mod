@@ -1,4 +1,4 @@
-module ecommerce-order
+module ecommerce_order
 
 go 1.24.5
 
