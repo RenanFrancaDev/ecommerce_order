@@ -9,20 +9,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type OrderService struct {
-	Publisher ports.OrderPublisher
+type PlaceOrderUseCase struct {
+    Publisher ports.QueuePublisher
 }
 
-func NewOrderService(publisher ports.OrderPublisher) *OrderService {
-	return &OrderService{Publisher: publisher}
+const (
+    OrderStatusOpen   = "OPEN"
+    OrderStatusPaid   = "PAID"
+    OrderStatusClosed = "CLOSED" 
+)
+
+func NewPlaceOrderUseCase(publisher ports.QueuePublisher) *PlaceOrderUseCase {
+	return &PlaceOrderUseCase{Publisher: publisher}
 }
 
-func (s *OrderService) PlaceOrder(order *domain.Order) error {
+func (s *PlaceOrderUseCase) PlaceOrder(order *domain.Order) error {
 	order.OrderID = uuid.New().String()
 	order.OrderDate = time.Now()
 
 	if order.OrderStatus == "" {
-		order.OrderStatus = "OPEN"
+		order.OrderStatus = OrderStatusOpen
 	}
 
 	return s.Publisher.Publish(*order)

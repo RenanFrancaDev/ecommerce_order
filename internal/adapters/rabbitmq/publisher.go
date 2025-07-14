@@ -5,47 +5,60 @@ import (
 	"log"
 
 	"ecommerce_order/internal/domain"
+	"ecommerce_order/internal/ports"
 
+	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 )
 
-type Publisher struct{}
+type RabbitMQPublisher struct {
+	conn      *amqp.Connection
+	channel   *amqp.Channel
+	queueName string
+}
 
-func (p Publisher) Publish(order domain.Order) error {
-	conn, err := amqp.Dial("amqp://guest:guest@127.0.0.1:5672/")
-	if err != nil {
-		log.Println("Erro ao conectar no RabbitMQ:", err)
-		return err
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
 	}
-	defer conn.Close()
+}
 
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Println("Erro ao abrir canal:", err)
-		return err
-	}
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare("orders", false, false, false, false, nil)
-	if err != nil {
-		log.Println("Erro ao declarar fila:", err)
-		return err
-	}
-
+func (p *RabbitMQPublisher) Publish(order domain.Order) error {
 	body, err := json.Marshal(order)
 	if err != nil {
-		log.Println("Erro ao serializar ordem:", err)
+		log.Printf("[RabbitMQ] Failed to serialize order %s: %v", order.OrderID, err)
 		return err
 	}
 
-	err = ch.Publish("", q.Name, false, false, amqp.Publishing{
-		ContentType: "application/json",
-		Body:        body,
-	})
+	err = p.channel.Publish(
+		"",
+		p.queueName,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
+
 	if err != nil {
-		log.Println("Erro ao publicar mensagem:", err)
+		log.Printf("[RabbitMQ] Failed to publish order %s: %v", order.OrderID, err)
 		return err
 	}
 
+	log.Printf("[RabbitMQ] Order %s successfully published to queue %s", order.OrderID, p.queueName)
 	return nil
+}
+
+func NewRabbitMQPublisher(conn *amqp.Connection, queueName string) ports.QueuePublisher {
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatal("[RabbitMQ] Failed to create channel:", err)
+	}
+
+	return &RabbitMQPublisher{
+		conn:      conn,
+		channel:   ch,
+		queueName: queueName,
+	}
 }
