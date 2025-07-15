@@ -1,7 +1,7 @@
 package ports
 
-import "ecommerce_order/internal/domain"
+import "ecommerce_order/internal/entity"
 
 type OrderRepository interface {
-	Save(order domain.Order) error
+	Save(order entity.Order) error
 }

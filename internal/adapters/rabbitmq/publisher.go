@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"ecommerce_order/internal/domain"
+	"ecommerce_order/internal/entity"
 	"ecommerce_order/internal/ports"
 
 	"github.com/joho/godotenv"
@@ -23,7 +23,7 @@ func init() {
 	}
 }
 
-func (p *RabbitMQPublisher) Publish(order domain.Order) error {
+func (p *RabbitMQPublisher) Publish(order entity.Order) error {
 	body, err := json.Marshal(order)
 	if err != nil {
 		log.Printf("[RabbitMQ] Failed to serialize order %s: %v", order.OrderID, err)

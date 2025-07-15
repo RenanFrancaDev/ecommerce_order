@@ -1,19 +1,11 @@
 package main
 
-import (
-	"ecommerce_order/internal/adapters/http"
-	"log"
-
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-)
-
+import "ecommerce_order/app"
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	r := gin.Default()
-	http.RegisterRoutes(r)
-	r.Run(":8080")
+	app.NewApp().
+		BuildConfig().
+		BuildHandlers().
+		BuildRouter().
+		MapWebRoutes().
+		Run()
 }

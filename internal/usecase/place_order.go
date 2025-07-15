@@ -3,7 +3,7 @@ package application
 import (
 	"time"
 
-	"ecommerce_order/internal/domain"
+	"ecommerce_order/internal/entity"
 	"ecommerce_order/internal/ports"
 
 	"github.com/google/uuid"
@@ -23,7 +23,7 @@ func NewPlaceOrderUseCase(publisher ports.QueuePublisher) *PlaceOrderUseCase {
 	return &PlaceOrderUseCase{Publisher: publisher}
 }
 
-func (s *PlaceOrderUseCase) PlaceOrder(order *domain.Order) error {
+func (uc *PlaceOrderUseCase) PlaceOrder(order *entity.Order) error {
 	order.OrderID = uuid.New().String()
 	order.OrderDate = time.Now()
 
@@ -31,5 +31,5 @@ func (s *PlaceOrderUseCase) PlaceOrder(order *domain.Order) error {
 		order.OrderStatus = OrderStatusOpen
 	}
 
-	return s.Publisher.Publish(*order)
+	return uc.Publisher.Publish(*order)
 }
