@@ -38,6 +38,10 @@ func (h *OrderHandler) PlaceOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Order processing error", "details": err.Error()}) 
 		return
 	}
+
+
+
+	
 	ctx.JSON(http.StatusOK, gin.H{
 			"message": "Order processed successfully",
 			"order_id": order.OrderID,

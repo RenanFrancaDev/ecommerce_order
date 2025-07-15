@@ -30,6 +30,19 @@ func (p *RabbitMQPublisher) Publish(order entity.Order) error {
 		return err
 	}
 
+	_, err = p.channel.QueueDeclare(
+    p.queueName, 
+    true,    
+    false,  
+    false,   
+    false,   
+    nil,     
+)
+
+if err != nil {
+    return err
+}
+
 	err = p.channel.Publish(
 		"",
 		p.queueName,
