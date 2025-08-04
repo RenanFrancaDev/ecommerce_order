@@ -7,6 +7,7 @@ import (
 	"ecommerce_order/internal/infrastructure/container"
 	"log"
 
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +24,10 @@ func NewApp() *App {
 
 func (a *App) BuildConfig() *App {
 	a.cfg = config.Load()
+
 	log.Println("MONGO_URI =", a.cfg.MongoURI)
     log.Println("MONGO_DATABASE =", a.cfg.MongoDatabase)
+
 	return a
 }
 
@@ -48,6 +51,7 @@ func (a *App) MapWebRoutes() *App {
 	http.RegisterOrderRoutes(a.router, a.handlers.Order)
 	return a
 }
+
 
 
 // 🟡 Este método inicia o consumer em uma goroutine
