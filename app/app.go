@@ -1,9 +1,11 @@
 package app
 
 import (
+	"context"
 	"ecommerce_order/internal/infrastructure/adapters/http"
 	"ecommerce_order/internal/infrastructure/config"
 	"ecommerce_order/internal/infrastructure/container"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +23,8 @@ func NewApp() *App {
 
 func (a *App) BuildConfig() *App {
 	a.cfg = config.Load()
+	log.Println("MONGO_URI =", a.cfg.MongoURI)
+    log.Println("MONGO_DATABASE =", a.cfg.MongoDatabase)
 	return a
 }
 
@@ -45,6 +49,19 @@ func (a *App) MapWebRoutes() *App {
 	return a
 }
 
+
+// 🟡 Este método inicia o consumer em uma goroutine
+func (a *App) RunConsumer() *App {
+	go func() {
+		log.Println("🔁 Iniciando consumidor...")
+		if err := a.container.GetOrderConsumer().Consume(context.Background()); err != nil {
+			log.Fatalf("❌ Erro ao consumir mensagens: %v", err)
+		}
+	}()
+	return a
+}
+
 func (a *App) Run() {
+	a.RunConsumer()
 	a.router.Run(":8080")
 }

@@ -42,3 +42,41 @@ func (m *OrderMapper) toItemsDto(items []entity.Item) []ItemDto {
 	}
 	return result
 } 
+
+
+
+
+func (m *OrderMapper) FromDto(dto OrderDto) entity.Order {
+	return entity.Order{
+		OrderID:       dto.OrderID,
+		OrderDate:     dto.OrderDate,
+		OrderStatus:   dto.OrderStatus,
+		ClientName:    dto.ClientName,
+		ClientEmail:   dto.ClientEmail,
+		ShippingValue: dto.ShippingValue,
+		Address:       m.fromAddressDto(dto.Address),
+		PaymentMethod: dto.PaymentMethod,
+		Items:         m.fromItemsDto(dto.Items),
+	}
+}
+
+func (m *OrderMapper) fromAddressDto(dto AddressDto) entity.Address {
+	return entity.Address{
+		CEP:    dto.CEP,
+		Street: dto.Street,
+	}
+}
+
+func (m *OrderMapper) fromItemsDto(dtos []ItemDto) []entity.Item {
+	items := make([]entity.Item, len(dtos))
+	for i, dto := range dtos {
+		items[i] = entity.Item{
+			ItemID:          dto.ItemID,
+			ItemDescription: dto.ItemDescription,
+			ItemValue:       dto.ItemValue,
+			ItemQuantity:    dto.ItemQuantity,
+			Discount:        dto.Discount,
+		}
+	}
+	return items
+}
