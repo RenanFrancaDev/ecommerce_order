@@ -29,7 +29,7 @@ func NewConsumer(conn *amqp.Connection, queueName string, collection *mongo.Coll
 func (c *Consumer) Consume(ctx context.Context) error {
 	ch, err := c.conn.Channel()
 	if err != nil {
-		return fmt.Errorf("erro ao abrir canal: %w", err)
+		return fmt.Errorf("Error to open channel: %w", err)
 	}
 	defer ch.Close()
 
@@ -43,26 +43,26 @@ func (c *Consumer) Consume(ctx context.Context) error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("erro ao consumir da fila: %w", err)
+		return fmt.Errorf("Error to consumer queue: %w", err)
 	}
 
-	log.Println("🟢 Aguardando mensagens da fila...")
+	log.Println("🟢 Waiting for queue messages...")
 
 	for msg := range msgs {
 		var orderDTO OrderDto
 		if err := json.Unmarshal(msg.Body, &orderDTO); err != nil {
-			log.Printf("❌ erro ao desserializar: %v", err)
+			log.Printf("❌ Error while deserializing: %v", err)
 			continue
 		}
 
 		order := c.mapper.FromDto(orderDTO)
 
-		if _, err := c.mongo.InsertOne(context.TODO(), order); err != nil {
-			log.Printf("❌ erro ao salvar no MongoDB: %v", err)
+		if _, err := c.mongo.InsertOne(ctx, order); err != nil {
+			log.Printf("❌ Error saving to MongoDB: %v", err)
 			continue
 		}
 
-		log.Printf("✅ Pedido %s salvo no MongoDB", order.OrderID)
+		log.Printf("✅ Order %s saved to MongoDB", order.OrderID)
 	}
 
 	return nil

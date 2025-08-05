@@ -23,8 +23,6 @@ func NewApp() *App {
 
 func (a *App) BuildConfig() *App {
 	a.cfg = config.Load()
-	log.Println("MONGO_URI =", a.cfg.MongoURI)
-    log.Println("MONGO_DATABASE =", a.cfg.MongoDatabase)
 	return a
 }
 
@@ -49,19 +47,14 @@ func (a *App) MapWebRoutes() *App {
 	return a
 }
 
-
-// 🟡 Este método inicia o consumer em uma goroutine
-func (a *App) RunConsumer() *App {
-	go func() {
-		log.Println("🔁 Iniciando consumidor...")
-		if err := a.container.GetOrderConsumer().Consume(context.Background()); err != nil {
-			log.Fatalf("❌ Erro ao consumir mensagens: %v", err)
-		}
-	}()
-	return a
+func (a *App) RunAPI() {
+	log.Println("🚀 Starting API on port 8080...")
+	a.router.Run(":8080")
 }
 
-func (a *App) Run() {
-	a.RunConsumer()
-	a.router.Run(":8080")
+func (a *App) RunConsumer() {
+	log.Println("🔁 Starting consumer...")
+	if err := a.container.GetOrderConsumer().Consume(context.Background()); err != nil {
+		log.Fatalf("❌ Error consuming messages: %v", err)
+	}
 }

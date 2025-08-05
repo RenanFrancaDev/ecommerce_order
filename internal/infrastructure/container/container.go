@@ -20,6 +20,7 @@ type Container struct {
 	orderPublisher    ports.OrderEventPublisher
 	placeOrderUseCase usecase.PlaceOrderUseCase
 	orderConsumer 	  *rabbitmq.Consumer
+	mongoClient       *mongo.Client 
 }
 
 func NewContainer(cfg *config.Config) *Container {
@@ -53,23 +54,30 @@ func (c *Container) GetPlaceOrderUseCase() usecase.PlaceOrderUseCase {
 	return c.placeOrderUseCase
 }
 
+func (c *Container) GetMongoClient() *mongo.Client {
+	if c.mongoClient == nil {
+		client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(c.cfg.MongoURI))
+		if err != nil {
+			log.Fatalf("Error connecting to MongoDB: %v", err)
+		}
+		c.mongoClient = client
+	}
+	return c.mongoClient
+}
 
 func (c *Container) GetOrderConsumer() *rabbitmq.Consumer {
 	if c.orderConsumer == nil {
 		conn, err := amqp.Dial(c.cfg.RabbitMQURL)
 		if err != nil {
-			log.Fatalf("Erro ao conectar ao RabbitMQ: %v", err)
+			log.Fatalf("Error connecting to RabbitMQ: %v", err)
 		}
+
+		mongoClient := c.GetMongoClient()
+
+		collection := mongoClient.Database(c.cfg.MongoDatabase).Collection("orders") 
 		
-
-		mongoClient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(c.cfg.MongoURI))
-		if err != nil {
-			
-			log.Fatalf("Erro ao conectar ao MongoDB: %v", err)
-		}
-
-		collection := mongoClient.Database("ecommerce").Collection("orders")
 		c.orderConsumer = rabbitmq.NewConsumer(conn, c.cfg.RabbitMQOrdersQueue, collection)
 	}
 	return c.orderConsumer
 }
+

@@ -24,11 +24,34 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - MONGO_URI=mongodb+srv://admin:admin123@cluster0.5pjzvgg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      - MONGO_DATABASE=ecommerce
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - ORDERS_QUEUE=orders
-      - GIN_MODE=release
+      - APP_MODE=api
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - ORDERS_QUEUE=${ORDERS_QUEUE}
+      - GIN_MODE=${GIN_MODE}
+    volumes:
+      - .env:/app/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecommerce-consumer
+    environment:
+      - APP_MODE=consumer
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - ORDERS_QUEUE=${ORDERS_QUEUE}
+    volumes:
+      - .env:/app/.env
     depends_on:
       rabbitmq:
         condition: service_healthy

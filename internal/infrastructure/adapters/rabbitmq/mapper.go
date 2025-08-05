@@ -43,9 +43,6 @@ func (m *OrderMapper) toItemsDto(items []entity.Item) []ItemDto {
 	return result
 } 
 
-
-
-
 func (m *OrderMapper) FromDto(dto OrderDto) entity.Order {
 	return entity.Order{
 		OrderID:       dto.OrderID,
