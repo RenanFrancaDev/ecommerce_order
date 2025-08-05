@@ -1,6 +1,7 @@
 package container
 
 import (
+
 	"context"
 	"log"
 
@@ -9,8 +10,10 @@ import (
 	"ecommerce_order/internal/infrastructure/adapters/rabbitmq"
 	"ecommerce_order/internal/infrastructure/config"
 
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
 
 	"github.com/streadway/amqp"
 )
@@ -20,7 +23,11 @@ type Container struct {
 	orderPublisher    ports.OrderEventPublisher
 	placeOrderUseCase usecase.PlaceOrderUseCase
 	orderConsumer 	  *rabbitmq.Consumer
+<<<<<<< HEAD
 	mongoClient       *mongo.Client 
+=======
+
+>>>>>>> c91927c5bfd9a2e5410ed554a6f898d4a3e4dd7f
 }
 
 func NewContainer(cfg *config.Config) *Container {
@@ -64,6 +71,7 @@ func (c *Container) GetMongoClient() *mongo.Client {
 	}
 	return c.mongoClient
 }
+
 
 func (c *Container) GetOrderConsumer() *rabbitmq.Consumer {
 	if c.orderConsumer == nil {

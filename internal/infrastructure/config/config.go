@@ -6,8 +6,10 @@ type Config struct {
 	RabbitMQURL         string
 	RabbitMQOrdersQueue string
 	GinMode             string
+
 	MongoURI      		string
 	MongoDatabase 		string
+
 }
 
 func Load() *Config {
@@ -20,7 +22,9 @@ func Load() *Config {
 		RabbitMQURL:         os.Getenv("RABBITMQ_URL"),
 		RabbitMQOrdersQueue: os.Getenv("ORDERS_QUEUE"),
 		GinMode:             ginMode,
+
 		MongoURI:      os.Getenv("MONGO_URI"),
 		MongoDatabase: os.Getenv("MONGO_DATABASE"),
+
 	}
 }
