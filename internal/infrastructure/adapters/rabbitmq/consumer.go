@@ -36,8 +36,8 @@ func (c *Consumer) Consume(ctx context.Context) error {
 	msgs, err := ch.Consume(
 		c.queueName,
 		"",
-		true,  // Auto-Ack
-		false, // exclusive
+		true, 
+		false, 
 		false,
 		false,
 		nil,

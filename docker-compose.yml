@@ -30,8 +30,6 @@ services:
       - RABBITMQ_URL=${RABBITMQ_URL}
       - ORDERS_QUEUE=${ORDERS_QUEUE}
       - GIN_MODE=${GIN_MODE}
-    volumes:
-      - .env:/app/.env
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -50,8 +48,6 @@ services:
       - MONGO_DATABASE=${MONGO_DATABASE}
       - RABBITMQ_URL=${RABBITMQ_URL}
       - ORDERS_QUEUE=${ORDERS_QUEUE}
-    volumes:
-      - .env:/app/.env
     depends_on:
       rabbitmq:
         condition: service_healthy
