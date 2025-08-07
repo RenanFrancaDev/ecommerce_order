@@ -6,7 +6,6 @@ type Config struct {
 	RabbitMQURL         string
 	RabbitMQOrdersQueue string
 	GinMode             string
-
 	MongoURI      		string
 	MongoDatabase 		string
 

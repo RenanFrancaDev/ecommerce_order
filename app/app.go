@@ -6,6 +6,9 @@ import (
 	"ecommerce_order/internal/infrastructure/config"
 	"ecommerce_order/internal/infrastructure/container"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,13 +51,23 @@ func (a *App) MapWebRoutes() *App {
 }
 
 func (a *App) RunAPI() {
-	log.Println("🚀 Starting API on port 8080...")
 	a.router.Run(":8080")
 }
 
 func (a *App) RunConsumer() {
-	log.Println("🔁 Starting consumer...")
-	if err := a.container.GetOrderConsumer().Consume(context.Background()); err != nil {
-		log.Fatalf("❌ Error consuming messages: %v", err)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-signalChan
+		log.Println("[app] shutdown signal received. Cancelling context...")
+		cancel()
+	}()
+
+	if err := a.container.GetOrderConsumer().Consume(ctx); err != nil {
+		log.Printf("[feature:consumer] [msg:error consuming messages] [error: %v]", err)
 	}
 }

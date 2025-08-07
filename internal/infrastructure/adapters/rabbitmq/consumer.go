@@ -36,7 +36,7 @@ func (c *Consumer) Consume(ctx context.Context) error {
 	msgs, err := ch.Consume(
 		c.queueName,
 		"",
-		true, 
+		false, 
 		false, 
 		false,
 		false,
@@ -46,24 +46,34 @@ func (c *Consumer) Consume(ctx context.Context) error {
 		return fmt.Errorf("Error to consumer queue: %w", err)
 	}
 
-	log.Println("🟢 Waiting for queue messages...")
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("[consumer] Shutdown signal received. Exiting...")
+			return nil
 
-	for msg := range msgs {
-		var orderDTO OrderDto
-		if err := json.Unmarshal(msg.Body, &orderDTO); err != nil {
-			log.Printf("❌ Error while deserializing: %v", err)
-			continue
+		case msg, ok := <-msgs:
+			if !ok {
+				log.Println("[consumer] Message channel closed. Exiting...")
+				return nil
+			}
+
+			var orderDTO OrderDto
+			if err := json.Unmarshal(msg.Body, &orderDTO); err != nil {
+				msg.Nack(false, false) // descarta mensagem inválida
+				continue
+			}
+
+			order := c.mapper.FromDto(orderDTO)
+
+			if _, err := c.mongo.InsertOne(ctx, order); err != nil {
+				log.Printf("[mongo] Failed to insert order: %v", err)
+				msg.Nack(false, true) // reenvia a mensagem para tentar depois
+				continue
+			}
+
+			msg.Ack(false)
 		}
+	}	
 
-		order := c.mapper.FromDto(orderDTO)
-
-		if _, err := c.mongo.InsertOne(ctx, order); err != nil {
-			log.Printf("❌ Error saving to MongoDB: %v", err)
-			continue
-		}
-
-		log.Printf("✅ Order %s saved to MongoDB", order.OrderID)
-	}
-
-	return nil
 }
