@@ -60,15 +60,15 @@ func (c *Consumer) Consume(ctx context.Context) error {
 
 			var orderDTO OrderDto
 			if err := json.Unmarshal(msg.Body, &orderDTO); err != nil {
-				msg.Nack(false, false) // descarta mensagem inválida
+				msg.Nack(false, false) 
 				continue
 			}
 
 			order := c.mapper.FromDto(orderDTO)
 
 			if _, err := c.mongo.InsertOne(ctx, order); err != nil {
-				log.Printf("[mongo] Failed to insert order: %v", err)
-				msg.Nack(false, true) // reenvia a mensagem para tentar depois
+				log.Printf("[mongo] [msg:Failed to insert order] [error:%v]", err)
+				msg.Nack(false, true) 
 				continue
 			}
 

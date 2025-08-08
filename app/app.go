@@ -63,7 +63,7 @@ func (a *App) RunConsumer() {
 
 	go func() {
 		<-signalChan
-		log.Println("[app] shutdown signal received. Cancelling context...")
+		log.Println("[app] [msg:shutdown signal received. Cancelling context...]")
 		cancel()
 	}()
 
