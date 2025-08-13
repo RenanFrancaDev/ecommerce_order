@@ -29,7 +29,7 @@ func NewConsumer(conn *amqp.Connection, queueName string, collection *mongo.Coll
 func (c *Consumer) Consume(ctx context.Context) error {
 	ch, err := c.conn.Channel()
 	if err != nil {
-		return fmt.Errorf("Error to open channel: %w", err)
+		return fmt.Errorf("[consumer] [msg:Error to open channel] [error:%w]", err)
 	}
 	defer ch.Close()
 
@@ -43,7 +43,7 @@ func (c *Consumer) Consume(ctx context.Context) error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("Error to consumer queue: %w", err)
+		return fmt.Errorf("[consumer] [msg:Error to consume queue] [error:%w]", err)
 	}
 
 	for {

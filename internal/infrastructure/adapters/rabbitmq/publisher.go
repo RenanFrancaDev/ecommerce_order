@@ -21,7 +21,8 @@ type Publisher struct {
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Printf("[msg:env file not found] [error: %v]", err)
+		log.Printf("[publisher] [msg:env file not found] [error: %v]", err)
+		
 	}
 }
 
@@ -30,7 +31,7 @@ func (p *Publisher) Execute(order entity.Order) error {
 
 	body, err := json.Marshal(orderDto)
 	if err != nil {
-		return fmt.Errorf("failed to serialize order: %w", err)
+		return fmt.Errorf("[publisher] [msg:failed to serialize order] [error: %w]", err)
 	}
 
 	_, err = p.channel.QueueDeclare(
@@ -43,7 +44,7 @@ func (p *Publisher) Execute(order entity.Order) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to declare queue: %w", err)
+		return fmt.Errorf("[publisher] [msg:failed to declare queue] [error: %w]", err)
 	}
 
 	err = p.channel.Publish(
@@ -58,7 +59,8 @@ func (p *Publisher) Execute(order entity.Order) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to publish order to queue: %w", err)
+		return fmt.Errorf("[publisher] [msg:failed to publish order to queue] [error: %w]", err)
+		
 	}
 
 	return nil
