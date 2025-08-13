@@ -49,12 +49,12 @@ func (c *Consumer) Consume(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Println("[consumer] Shutdown signal received. Exiting...")
+			log.Println("[consumer] [msg:Shutdown signal received. Exiting...]")
 			return nil
 
 		case msg, ok := <-msgs:
 			if !ok {
-				log.Println("[consumer] Message channel closed. Exiting...")
+				log.Println("[consumer] [msg:Message channel closed. Exiting...]")
 				return nil
 			}
 
