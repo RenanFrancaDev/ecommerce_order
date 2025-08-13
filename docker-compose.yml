@@ -24,9 +24,30 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-      - ORDERS_QUEUE=orders
-      - GIN_MODE=release
+      - APP_MODE=api
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - ORDERS_QUEUE=${ORDERS_QUEUE}
+      - GIN_MODE=${GIN_MODE}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecommerce-consumer
+    environment:
+      - APP_MODE=consumer
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - ORDERS_QUEUE=${ORDERS_QUEUE}
     depends_on:
       rabbitmq:
         condition: service_healthy
