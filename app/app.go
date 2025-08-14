@@ -71,3 +71,5 @@ func (a *App) RunConsumer() {
 		log.Printf("[feature:consumer] [msg:error consuming messages] [error: %v]", err)
 	}
 }
+
+
