@@ -1,6 +1,10 @@
 # Description
 
-<!-- Add information to help others understand this PR -->
+<!-- Add information that will help others understand your pull request. -->
+
+# Tests
+
+<!-- Add information that will help others understand how you tested your implementation and how it works. -->
 
 # Type of change
 
@@ -11,13 +15,10 @@
 - [ ] Refactor
 - [ ] Documentation
 
-# How Has This Been Tested?
-
-<!-- Explain how you tested your changes, e.g., manual tests, unit tests -->
-
 # Checklist
 
 - [ ] Code follows the repository style guidelines
 - [ ] Self-review completed
-- [ ] Comments added where necessary
 - [ ] Tests added or updated
+
+[**Trello Item**](link)
