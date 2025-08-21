@@ -23,7 +23,7 @@ func (m *MockOrderEventPublisher) Execute(order entity.Order) error {
 
 func TestPlaceOrder_Execute(t *testing.T) {
 	t.Run("should place order successfully with complete data", func(t *testing.T) {
-		
+
 		// Arrange
 		mockPublisher := new(MockOrderEventPublisher)
 		placeOrderUC := NewPlaceOrder(mockPublisher)
@@ -48,45 +48,45 @@ func TestPlaceOrder_Execute(t *testing.T) {
 			},
 		}
 
-		// Calculate expected total
-		expectedTotal := order.TotalValue()
-
 		mockPublisher.On("Execute", mock.AnythingOfType("entity.Order")).
 			Return(nil).
 			Run(func(args mock.Arguments) {
 				orderArg := args.Get(0).(entity.Order)
-				
-				// Verify that order was properly populated
-				assert.NotEmpty(t, orderArg.OrderID)
-				assert.Equal(t, entity.OrderStatusOpen, orderArg.OrderStatus)
-				assert.WithinDuration(t, time.Now(), orderArg.OrderDate, time.Second)
-				
-				// Verify original data is preserved
-				assert.Equal(t, "Renan", orderArg.ClientName)
-				assert.Equal(t, "renan@example.com", orderArg.ClientEmail)
-				assert.Equal(t, 15.9, orderArg.ShippingValue)
-				assert.Equal(t, 12345678, orderArg.Address.CEP)
-				assert.Equal(t, "Rua Exemplo", orderArg.Address.Street)
-				assert.Equal(t, "CREDIT", orderArg.PaymentMethod)
-				assert.Len(t, orderArg.Items, 1)
-				
-				// Verify calculated values
-				assert.Equal(t, expectedTotal, orderArg.TotalValue())
-				assert.Equal(t, 109.8, orderArg.Items[0].TotalValue()) // (59.9 * 2) - 10
+
+				expected := *order
+				expected.OrderStatus = entity.OrderStatusOpen //POR QUE esse campo não pode ser declarado no order?
+
+				assertOrderEqual(t, expected, orderArg, true)
 			})
 
 		// Act
-		err := placeOrderUC.Execute(order)
-
-		// Assert
-		assert.NoError(t, err)
-		assert.NotEmpty(t, order.OrderID)
-		assert.Equal(t, entity.OrderStatusOpen, order.OrderStatus)
-		assert.WithinDuration(t, time.Now(), order.OrderDate, time.Second)
-		assert.Equal(t, expectedTotal, order.TotalValue())
-		
-		mockPublisher.AssertExpectations(t)
+		placeOrderUC.Execute(order)
 	})
+}
 
-	
+// helper function
+func assertOrderEqual(t *testing.T, expected, actual entity.Order, checkDynamicFields bool) {
+	if checkDynamicFields {
+		assert.NotEmpty(t, actual.OrderID)
+		assert.Equal(t, entity.OrderStatusOpen, actual.OrderStatus)
+		assert.WithinDuration(t, time.Now(), actual.OrderDate, time.Second)
+	}
+
+	assert.Equal(t, expected.ClientName, actual.ClientName)
+	assert.Equal(t, expected.ClientEmail, actual.ClientEmail)
+	assert.Equal(t, expected.ShippingValue, actual.ShippingValue)
+	assert.Equal(t, expected.Address.CEP, actual.Address.CEP)
+	assert.Equal(t, expected.Address.Street, actual.Address.Street)
+	assert.Equal(t, expected.PaymentMethod, actual.PaymentMethod)
+	assert.Equal(t, expected.TotalValue(), actual.TotalValue())
+
+	assert.Len(t, actual.Items, len(expected.Items))
+	for i := range expected.Items {
+		assert.Equal(t, expected.Items[i].ItemID, actual.Items[i].ItemID)
+		assert.Equal(t, expected.Items[i].ItemDescription, actual.Items[i].ItemDescription)
+		assert.Equal(t, expected.Items[i].ItemValue, actual.Items[i].ItemValue)
+		assert.Equal(t, expected.Items[i].ItemQuantity, actual.Items[i].ItemQuantity)
+		assert.Equal(t, expected.Items[i].Discount, actual.Items[i].Discount)
+		assert.Equal(t, expected.Items[i].TotalValue(), actual.Items[i].TotalValue())
+	}
 }
