@@ -28,5 +28,5 @@ func (uc *PlaceOrder) Execute(order *entity.Order) error {
 	order.OrderID = uuid.New().String()
 	order.OrderDate = time.Now()
 	order.OrderStatus = entity.OrderStatusOpen
-	return uc.publisher.Execute(*order)
+	return uc.publisher.Execute(order)
 }
