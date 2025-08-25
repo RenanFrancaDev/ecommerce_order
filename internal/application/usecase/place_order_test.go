@@ -1,4 +1,3 @@
-// internal/application/usecase/place_order_test.go
 package usecase
 
 import (
@@ -14,7 +13,7 @@ type MockOrderEventPublisher struct {
 	mock.Mock
 }
 
-func (m *MockOrderEventPublisher) Execute(order entity.Order) error {
+func (m *MockOrderEventPublisher) Execute(order *entity.Order) error {
 	args := m.Called(order)
 	return args.Error(0)
 }
@@ -48,7 +47,7 @@ func TestPlaceOrder_Execute(t *testing.T) {
 		mockPublisher.On("Execute", mock.AnythingOfType("entity.Order")).
 			Return(nil).
 			Run(func(args mock.Arguments) {
-				expected := args.Get(0).(entity.Order)
+				expected := args.Get(0).(*entity.Order)
 
 				assert.NotEmpty(t, expected.OrderID)
 				assert.Equal(t, entity.OrderStatusOpen, expected.OrderStatus)
