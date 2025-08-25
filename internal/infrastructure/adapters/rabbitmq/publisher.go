@@ -22,12 +22,12 @@ type Publisher struct {
 func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("[publisher] [msg:env file not found] [error: %v]", err)
-		
+
 	}
 }
 
-func (p *Publisher) Execute(order entity.Order) error {
-	orderDto := p.mapper.ToDto(order)
+func (p *Publisher) Execute(order *entity.Order) error {
+	orderDto := p.mapper.ToDto(*order)
 
 	body, err := json.Marshal(orderDto)
 	if err != nil {
@@ -60,7 +60,7 @@ func (p *Publisher) Execute(order entity.Order) error {
 
 	if err != nil {
 		return fmt.Errorf("[publisher] [msg:failed to publish order to queue] [error: %w]", err)
-		
+
 	}
 
 	return nil

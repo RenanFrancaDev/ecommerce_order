@@ -44,7 +44,7 @@ func TestPlaceOrder_Execute(t *testing.T) {
 			},
 		}
 
-		mockPublisher.On("Execute", mock.AnythingOfType("entity.Order")).
+		mockPublisher.On("Execute", mock.AnythingOfType("*entity.Order")).
 			Return(nil).
 			Run(func(args mock.Arguments) {
 				expected := args.Get(0).(*entity.Order)
