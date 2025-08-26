@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"testing"
 
 	"ecommerce_order/internal/domain/entity"
@@ -54,6 +55,46 @@ func TestPlaceOrder_Execute(t *testing.T) {
 				assert.NotEmpty(t, expected.OrderDate)
 			})
 
-		placeOrderUC.Execute(order)
+		err := placeOrderUC.Execute(order)
+		assert.Nil(t, err)
+
 	})
+
+	t.Run("should return error when publisher fails", func(t *testing.T) {
+
+		mockPublisher := new(MockOrderEventPublisher)
+		placeOrderUC := NewPlaceOrder(mockPublisher)
+
+		order := &entity.Order{
+			ClientName:    "Renan",
+			ClientEmail:   "renan@example.com",
+			ShippingValue: 15.9,
+			Address: entity.Address{
+				CEP:    12345678,
+				Street: "Rua Exemplo",
+			},
+			PaymentMethod: "CREDIT",
+			Items: []entity.Item{
+				{
+					ItemID:          1,
+					ItemDescription: "Camisa Polo 2",
+					ItemValue:       59.9,
+					ItemQuantity:    2,
+					Discount:        10,
+				},
+			},
+		}
+
+		expectedError := errors.New("rabbitmq connection failed")
+		mockPublisher.On("Execute", mock.AnythingOfType("*entity.Order")).
+			Return(expectedError)
+
+		err := placeOrderUC.Execute(order)
+
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+
+		mockPublisher.AssertExpectations(t)
+	})
+
 }
