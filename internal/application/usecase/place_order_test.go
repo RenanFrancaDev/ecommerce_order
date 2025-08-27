@@ -19,7 +19,7 @@ func (m *MockOrderEventPublisher) Execute(order *entity.Order) error {
 	return args.Error(0)
 }
 
-func TestPlaceOrder_Execute(t *testing.T) {
+func TestPlaceOrderExecute(t *testing.T) {
 	t.Run("should place order successfully with complete data", func(t *testing.T) {
 
 		mockPublisher := new(MockOrderEventPublisher)
