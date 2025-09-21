@@ -7,6 +7,7 @@ A complete order processing microservice built with Go, featuring event-driven a
 - **RESTful API** for order management
 - **Event-driven architecture** using RabbitMQ
 - **MongoDB** data persistence
+- **Docker** with Docker Compose
 - **Comprehensive testing** with mocking
 - **Error handling** and validation
 - **UUID generation** for orders
@@ -22,29 +23,54 @@ HTTP Client → Gin Router → Order Handler → PlaceOrder UseCase → RabbitMQ
 - **Gin** - HTTP web framework
 - **RabbitMQ** - Message broker for events
 - **MongoDB** - NoSQL database
+- **Docker** - Containerization
 - **Testify** - Testing framework
 - **UUID** - Unique identifier generation
 
-## 🚀 Quick Start
+### 🐳 Docker Deployment
 
-### Prerequisites
-
-- Go 1.21+
-- RabbitMQ
-- MongoDB
+- Docker
+- Docker Compose
 - Git
 
-### Installation
-
-
+## 🚀 Quick Start
 ```
 # Clone the repository
 git clone https://github.com/your-username/ecommerce-order-system.git
 cd ecommerce-order-system
 
-# Install dependencies
-go mod download 
+# Start all services with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
 ```
+
+## Docker Commands Explained
+```
+# Start services in detached mode (background)
+docker-compose up -d
+
+# Build and start services (force rebuild)
+docker-compose up --build
+
+# View running containers
+docker-compose ps
+
+# View logs
+docker-compose logs
+
+# Stop and remove containers
+docker-compose down
+
+# Restart specific service
+docker-compose restart api
+```
+
+
 ### 📡 API Documentation
 
 #### POST /orders
